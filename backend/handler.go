@@ -77,7 +77,13 @@ func updateUser(db *sql.DB) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
+		
+		var updatedUser User
+		err= db.QueryRow("SELECT * FROM users WHERE id=$1", id).Scan(&updatedUser.Id, &updatedUser.Name, &updatedUser.Email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		}
+		json.NewEncoder(w).Encode(updatedUser)
 	}
 }
 
@@ -89,6 +95,6 @@ func deleteUser(db *sql.DB) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusNoContent)
+	  json.NewEncoder(w).Encode("User deleted successfully")
 	}
 }
